@@ -112,7 +112,7 @@ app.get('/api/requests/:id', async (req: Request, res: Response) => {
 });
 
 app.post('/api/requests', async (req: Request, res: Response) => {
-  const { patientName, bloodGroup, hospitalName, location, urgencyLevel, contactNumber, email } = req.body as {
+  const { patientName, bloodGroup, hospitalName, location, urgencyLevel, contactNumber, email, imageUrl } = req.body as {
     patientName?: string;
     bloodGroup?: string;
     hospitalName?: string;
@@ -120,6 +120,7 @@ app.post('/api/requests', async (req: Request, res: Response) => {
     urgencyLevel?: string;
     contactNumber?: string;
     email?: string;
+    imageUrl?: string;
   };
 
   if (!patientName || !bloodGroup || !hospitalName || !location || !urgencyLevel || !contactNumber || !email) {
@@ -134,6 +135,7 @@ app.post('/api/requests', async (req: Request, res: Response) => {
     urgencyLevel,
     contactNumber,
     email,
+    imageUrl: imageUrl || '',
     createdAt: new Date(),
   };
 
@@ -147,13 +149,14 @@ app.put('/api/requests/:id', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Invalid request ID' });
   }
 
-  const { patientName, bloodGroup, hospitalName, location, urgencyLevel, contactNumber } = req.body as {
+  const { patientName, bloodGroup, hospitalName, location, urgencyLevel, contactNumber, imageUrl } = req.body as {
     patientName?: string;
     bloodGroup?: string;
     hospitalName?: string;
     location?: string;
     urgencyLevel?: string;
     contactNumber?: string;
+    imageUrl?: string;
   };
 
   if (!patientName || !bloodGroup || !hospitalName || !location || !urgencyLevel || !contactNumber) {
@@ -170,6 +173,7 @@ app.put('/api/requests/:id', async (req: Request, res: Response) => {
         location,
         urgencyLevel,
         contactNumber,
+        imageUrl: imageUrl || '',
         updatedAt: new Date(),
       },
     }
@@ -206,15 +210,17 @@ app.get('/api/profile', async (req: Request, res: Response) => {
 
   const profile = await profilesCollection.findOne({ email: email as string });
   if (!profile) {
-    return res.json({ email, bloodGroup: '', lastDonationDate: '', medicalEligibility: 'Eligible' });
+    return res.json({ email, name: '', phone: '', bloodGroup: '', lastDonationDate: '', medicalEligibility: 'Eligible' });
   }
 
   res.json(profile);
 });
 
 app.post('/api/profile', async (req: Request, res: Response) => {
-  const { email, bloodGroup, lastDonationDate, medicalEligibility } = req.body as {
+  const { email, name, phone, bloodGroup, lastDonationDate, medicalEligibility } = req.body as {
     email?: string;
+    name?: string;
+    phone?: string;
     bloodGroup?: string;
     lastDonationDate?: string;
     medicalEligibility?: string;
@@ -228,6 +234,8 @@ app.post('/api/profile', async (req: Request, res: Response) => {
     { email },
     {
       $set: {
+        name: name || '',
+        phone: phone || '',
         bloodGroup: bloodGroup || '',
         lastDonationDate: lastDonationDate || '',
         medicalEligibility: medicalEligibility || 'Eligible',
